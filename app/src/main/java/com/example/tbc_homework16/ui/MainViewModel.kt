@@ -12,7 +12,7 @@ class MainViewModel(
     private val api: UserApi
 ) : ViewModel() {
     val users =
-        Pager(config = PagingConfig(pageSize = 2, prefetchDistance = 2), pagingSourceFactory = {
+        Pager(config = PagingConfig(pageSize = 2), pagingSourceFactory = {
             com.example.tbc_homework16.paging.PagingSource(api)
         }).flow.cachedIn(viewModelScope)
 }

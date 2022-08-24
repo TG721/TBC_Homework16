@@ -30,7 +30,6 @@ class MainActivity : AppCompatActivity() {
         //preparing list
         userAdapter = UserAdapter()
         binding.RVUsers.apply {
-            setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
             adapter = userAdapter.withLoadStateHeaderAndFooter(
                 header = LoaderAdapter { userAdapter.retry() },

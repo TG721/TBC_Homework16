@@ -5,17 +5,25 @@ import androidx.paging.PagingState
 import com.example.tbc_homework16.model.UserData
 import com.example.tbc_homework16.network.UserApi
 
-class PagingSource(val api: UserApi) : PagingSource<Int, UserData.Data>() {
 
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, UserData.Data> {
+const val STARTING_KEY = 1
+
+class PagingSource(val api: UserApi) : PagingSource<Int, UserData.User>() {
+
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, UserData.User> {
         return try {
-            val nextPageNumber = params.key ?: 0
-            val response: UserData = api.getPersonData(nextPageNumber)
+            val PageNumber = params.key ?: STARTING_KEY
+            // Load as many items as hinted by params.loadSize
+            val range = PageNumber.until(PageNumber + params.loadSize)
+            val response: UserData = api.getPersonData(PageNumber)
 
             LoadResult.Page(
-                 response.data,
-                if (nextPageNumber > 0) nextPageNumber - 1 else null,
-                if (nextPageNumber < response.totalPages) nextPageNumber + 1 else null
+                data =   response.data,
+                prevKey = when (PageNumber) {
+                    STARTING_KEY -> null
+                    else -> ensureValidKey(key = range.first - params.loadSize)
+                },
+                nextKey =  if (PageNumber < response.totalPages) PageNumber + 1 else null
             )
         }
         //if error
@@ -23,8 +31,9 @@ class PagingSource(val api: UserApi) : PagingSource<Int, UserData.Data>() {
             LoadResult.Error(e)
         }
     }
+    private fun ensureValidKey(key: Int) = Integer.max(STARTING_KEY, key)
 
-    override fun getRefreshKey(state: PagingState<Int, UserData.Data>): Int? {
+    override fun getRefreshKey(state: PagingState<Int, UserData.User>): Int? {
         return state.anchorPosition?.let {
             state.closestPageToPosition(it)?.prevKey?.plus(1)
                 ?: state.closestPageToPosition(it)?.nextKey?.minus(1)

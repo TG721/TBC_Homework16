@@ -12,40 +12,40 @@ import com.example.tbc_homework16.model.UserData
 
 
 class UserAdapter :
-    PagingDataAdapter<UserData.Data, UserAdapter.PersonViewHolder>(UserComparator) {
+    PagingDataAdapter<UserData.User, UserAdapter.UserViewHolder>(User_Comparator_DIFF_CALLBACK) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int, ): PersonViewHolder {
-        return PersonViewHolder(
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int, ): UserViewHolder {
+        return UserViewHolder(
             UserItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         )
     }
 
-    override fun onBindViewHolder(holder: PersonViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
         holder.bindUser()
     }
 
-    inner class PersonViewHolder(private val binding: UserItemBinding) :
+    inner class UserViewHolder(private val binding: UserItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bindUser() = with(binding) {
-            val item = getItem(absoluteAdapterPosition)!!
+            val currentItem = getItem(absoluteAdapterPosition)!!
             Glide
                 .with(imgUser.context)
-                .load(item.avatar.toString())
+                .load(currentItem.avatar)
                 .placeholder(R.drawable.avatar_ph)
                 .centerCrop()
                 .into(imgUser)
-            tvEmail.text = item.email.toString()
-            tvName.text = item.firstName + " " + item.lastName
+            tvEmail.text = currentItem.email.toString()
+            tvName.text = currentItem.firstName + " " + currentItem.lastName
         }
     }
 
-    object UserComparator : DiffUtil.ItemCallback<UserData.Data>() {
-        override fun areItemsTheSame(oldItem: UserData.Data, newItem: UserData.Data): Boolean {
+    object User_Comparator_DIFF_CALLBACK : DiffUtil.ItemCallback<UserData.User>() {
+        override fun areItemsTheSame(oldItem: UserData.User, newItem: UserData.User): Boolean {
             return oldItem.id == newItem.id
         }
 
-        override fun areContentsTheSame(oldItem: UserData.Data, newItem: UserData.Data): Boolean {
+        override fun areContentsTheSame(oldItem: UserData.User, newItem: UserData.User): Boolean {
             return oldItem == newItem
         }
     }
